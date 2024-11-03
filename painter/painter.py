@@ -93,7 +93,9 @@ class DrawingApp:
 
     def clear_canvas(self):
         self.canvas.delete("all")
-        self.image = Image.new("RGB", (600, 400), "white")
+        self.image = Image.new("RGB",
+                               (600, 400),
+                               "white")
         self.draw = ImageDraw.Draw(self.image)
 
     def choose_color(self):
@@ -101,12 +103,14 @@ class DrawingApp:
 
     def save_image(self):
         file_path = filedialog.asksaveasfilename(
-            filetypes=[('PNG files', '*.png')])
+            filetypes=[('PNG files',
+                        '*.png')])
         if file_path:
             if not file_path.endswith('.png'):
                 file_path += '.png'
             self.image.save(file_path)
-            messagebox.showinfo("Информация", "Изображение успешно сохранено!")
+            messagebox.showinfo("Информация",
+                                "Изображение успешно сохранено!")
 
 
 def main():
