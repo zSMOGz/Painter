@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw
 
 class DrawingApp:
     __brush_sizes = ["1", "2", "5", "10"]
+    __canvas_color = "white"
 
     def __init__(self, root):
         self.root = root
@@ -23,13 +24,13 @@ class DrawingApp:
 
         self.image = Image.new("RGB",
                                (600, 400),
-                               "white")
+                               self.__canvas_color)
         self.draw = ImageDraw.Draw(self.image)
 
         self.canvas = Canvas(root,
                              width=600,
                              height=400,
-                             bg='white')
+                             bg=self.__canvas_color)
         self.canvas.pack()
 
         self.setup_ui()
@@ -44,6 +45,9 @@ class DrawingApp:
                          self.reset)
 
     def setup_ui(self):
+        """
+        Создание интерфейса.
+        """
         control_frame = Frame(self.root)
         control_frame.pack(fill=X)
 
@@ -56,6 +60,11 @@ class DrawingApp:
                               text="Выбрать цвет",
                               command=self.choose_color)
         color_button.pack(side=LEFT)
+
+        eraser_button = Button(control_frame,
+                               text="Ластик",
+                               command=self.eraser)
+        eraser_button.pack(side=LEFT)
 
         label_brush_size = Label(text="Размер кисти")
         label_brush_size.pack(side=LEFT)
@@ -72,6 +81,9 @@ class DrawingApp:
         save_button.pack(side=LEFT)
 
     def paint(self, event):
+        """
+        Рисование.
+        """
         if self.last_x and self.last_y:
             self.canvas.create_line(self.last_x,
                                     self.last_y,
@@ -89,19 +101,37 @@ class DrawingApp:
         self.last_y = event.y
 
     def reset(self, event):
+        """
+        Сброс координат.
+        """
         self.last_x, self.last_y = None, None
 
     def clear_canvas(self):
+        """
+        Очистка холста.
+        """
         self.canvas.delete("all")
         self.image = Image.new("RGB",
                                (600, 400),
-                               "white")
+                               self.__canvas_color)
         self.draw = ImageDraw.Draw(self.image)
 
     def choose_color(self):
+        """
+        Выбор цвета.
+        """
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
 
+    def eraser(self):
+        """
+        Ластик.
+        """
+        self.pen_color = self.__canvas_color
+
     def save_image(self):
+        """
+        Сохранение изображения.
+        """
         file_path = filedialog.asksaveasfilename(
             filetypes=[('PNG files',
                         '*.png')])
