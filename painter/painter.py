@@ -17,6 +17,7 @@ from PIL import Image, ImageDraw
 class DrawingApp:
     __brush_sizes = ["1", "2", "5", "10"]
     __canvas_color = "white"
+    __previous_pen_color = "black"
 
     def __init__(self, root):
         self.root = root
@@ -38,6 +39,7 @@ class DrawingApp:
         self.last_x, self.last_y = (None,
                                     None)
         self.pen_color = 'black'
+        self.__previous_pen_color = self.pen_color
 
         self.canvas.bind('<B1-Motion>',
                          self.paint)
@@ -120,12 +122,14 @@ class DrawingApp:
         """
         Выбор цвета.
         """
+        self.pen_color = self.__previous_pen_color
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
 
     def eraser(self):
         """
         Ластик.
         """
+        self.__previous_pen_color = self.pen_color
         self.pen_color = self.__canvas_color
 
     def save_image(self):
