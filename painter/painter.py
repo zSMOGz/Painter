@@ -14,6 +14,16 @@ from tkinter import (LEFT,
 from PIL import Image, ImageDraw
 
 
+def rgb_to_hex(r: int,
+               g: int,
+               b: int):
+    """"
+    Преобразование цвета RGB в HEX
+    """
+    hex_value = '#{:02x}{:02x}{:02x}'.format(r, g, b)
+    return hex_value
+
+
 class DrawingApp:
     __brush_sizes = ["1", "2", "5", "10"]
     __canvas_color = "white"
@@ -45,6 +55,8 @@ class DrawingApp:
                          self.paint)
         self.canvas.bind('<ButtonRelease-1>',
                          self.reset)
+        self.canvas.bind('<Button-3>',
+                         self.pick_color)
 
     def setup_ui(self):
         """
@@ -82,7 +94,8 @@ class DrawingApp:
                              command=self.save_image)
         save_button.pack(side=LEFT)
 
-    def paint(self, event):
+    def paint(self,
+              event):
         """
         Рисование.
         """
@@ -102,11 +115,21 @@ class DrawingApp:
         self.last_x = event.x
         self.last_y = event.y
 
-    def reset(self, event):
+    def reset(self,
+              event):
         """
         Сброс координат.
         """
         self.last_x, self.last_y = None, None
+
+    def pick_color(self,
+                   event):
+        """
+        Выбор цвета текущего пикселя.
+        """
+        r, g, b = self.image.getpixel((event.x,
+                                       event.y))
+        self.pen_color = rgb_to_hex(r, g, b)
 
     def clear_canvas(self):
         """
