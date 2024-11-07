@@ -58,6 +58,11 @@ class DrawingApp:
         self.canvas.bind('<Button-3>',
                          self.pick_color)
 
+        self.root.bind('<Control-s>',
+                       self.save_image)
+        self.root.bind('<Control-c>',
+                       self.choose_color)
+
     def setup_ui(self):
         """
         Создание интерфейса.
@@ -141,7 +146,8 @@ class DrawingApp:
                                self.__canvas_color)
         self.draw = ImageDraw.Draw(self.image)
 
-    def choose_color(self):
+    def choose_color(self,
+                     event):
         """
         Выбор цвета.
         """
@@ -155,7 +161,8 @@ class DrawingApp:
         self.__previous_pen_color = self.pen_color
         self.pen_color = self.__canvas_color
 
-    def save_image(self):
+    def save_image(self,
+                   event):
         """
         Сохранение изображения.
         """
