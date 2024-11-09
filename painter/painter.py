@@ -44,6 +44,11 @@ class DrawingApp:
                              bg=self.__canvas_color)
         self.canvas.pack()
 
+        self.canvas_current_color = Canvas(root,
+                                           width=20,
+                                           height=20,
+                                           bg=self.__previous_pen_color)
+
         self.setup_ui()
 
         self.last_x, self.last_y = (None,
@@ -61,7 +66,7 @@ class DrawingApp:
         self.root.bind('<Control-s>',
                        self.save_image)
         self.root.bind('<Control-c>',
-                       self.choose_color)
+                       self.choose_color_event)
 
     def setup_ui(self):
         """
@@ -99,6 +104,8 @@ class DrawingApp:
                              command=self.save_image)
         save_button.pack(side=LEFT)
 
+        self.canvas_current_color.pack(side=LEFT)
+
     def paint(self,
               event):
         """
@@ -135,6 +142,7 @@ class DrawingApp:
         r, g, b = self.image.getpixel((event.x,
                                        event.y))
         self.pen_color = rgb_to_hex(r, g, b)
+        self.set_current_color()
 
     def clear_canvas(self):
         """
@@ -146,13 +154,30 @@ class DrawingApp:
                                self.__canvas_color)
         self.draw = ImageDraw.Draw(self.image)
 
-    def choose_color(self,
-                     event):
+    def choose_color(self):
         """
         Выбор цвета.
         """
         self.pen_color = self.__previous_pen_color
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
+        self.set_current_color()
+
+    def choose_color_event(self,
+                           event):
+        """
+        Выбор цвета.
+        """
+        self.pen_color = self.__previous_pen_color
+        self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
+        self.set_current_color()
+
+    def set_current_color(self):
+        """
+        Установка текущего цвета.
+        """
+        if (self.pen_color is not None
+                and self.pen_color != self.__canvas_color):
+            self.canvas_current_color.configure(bg=self.pen_color)
 
     def eraser(self):
         """
