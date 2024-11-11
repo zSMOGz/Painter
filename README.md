@@ -3,4 +3,4 @@
 
 # Примеры работы
 .1 Рисунок <br />
-![Изображение 1](./examles/paint.jpg)
+![Изображение 1](./painter/examles/paint.jpg)
