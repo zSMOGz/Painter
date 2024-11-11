@@ -10,6 +10,7 @@ from tkinter import (LEFT,
                      colorchooser,
                      filedialog,
                      messagebox,
+                     simpledialog,
                      ttk)
 from PIL import Image, ImageDraw
 
@@ -25,22 +26,27 @@ def rgb_to_hex(r: int,
 
 
 class DrawingApp:
-    __brush_sizes = ["1", "2", "5", "10"]
+    __brush_sizes = ["1", "2", "5", "10", "20", "50", "100", "200",
+                     "500", "1000"]
     __canvas_color = "white"
     __previous_pen_color = "black"
+    __max_canvas_size_width = 900
+    __max_canvas_size_height = 900
 
     def __init__(self, root):
         self.root = root
         self.root.title("Рисовалка с сохранением в PNG")
-
+        self.canvas_size_width = 600
+        self.canvas_size_height = 600
         self.image = Image.new("RGB",
-                               (600, 400),
+                               (self.canvas_size_width,
+                                self.canvas_size_height),
                                self.__canvas_color)
         self.draw = ImageDraw.Draw(self.image)
 
         self.canvas = Canvas(root,
-                             width=600,
-                             height=400,
+                             width=self.canvas_size_width,
+                             height=self.canvas_size_height,
                              bg=self.__canvas_color)
         self.canvas.pack()
 
@@ -105,6 +111,29 @@ class DrawingApp:
         save_button.pack(side=LEFT)
 
         self.canvas_current_color.pack(side=LEFT)
+        size_button = Button(control_frame,
+                             text="Размер изображния",
+                             command=self.update_size)
+        size_button.pack(side=LEFT)
+
+    def update_size(self):
+        max_size = self.__max_canvas_size_width
+        size = simpledialog.askinteger("Размер изображения",
+                                       "Новый размер картинки:",
+                                       minvalue=100,
+                                       maxvalue=900,
+                                       initialvalue=max_size,
+                                       parent=self.root)
+        self.canvas_size_width = size
+        self.canvas_size_height = size
+        self.image = Image.new("RGB",
+                               (self.canvas_size_width,
+                                self.canvas_size_height),
+                               self.__canvas_color)
+        self.draw = ImageDraw.Draw(self.image)
+        self.canvas.config(width=self.canvas_size_width,
+                           height=self.canvas_size_height)
+        self.canvas.pack()
 
     def paint(self,
               event):
