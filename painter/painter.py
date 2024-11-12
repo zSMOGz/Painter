@@ -12,7 +12,7 @@ from tkinter import (LEFT,
                      messagebox,
                      simpledialog,
                      ttk)
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont, ImageTk
 
 
 def rgb_to_hex(r: int,
@@ -32,6 +32,9 @@ class DrawingApp:
     __previous_pen_color = "black"
     __max_canvas_size_width = 900
     __max_canvas_size_height = 900
+    __text_size = 20
+    __font = ImageFont.truetype("arial.ttf", size=__text_size)
+    __last_place_text = ""
 
     def __init__(self, root):
         self.root = root
@@ -42,6 +45,7 @@ class DrawingApp:
                                (self.canvas_size_width,
                                 self.canvas_size_height),
                                self.__canvas_color)
+        self.photo = ImageTk.PhotoImage(self.image)
         self.draw = ImageDraw.Draw(self.image)
 
         self.canvas = Canvas(root,
@@ -70,7 +74,7 @@ class DrawingApp:
                          self.pick_color)
 
         self.root.bind('<Control-s>',
-                       self.save_image)
+                       self.save_image_event)
         self.root.bind('<Control-c>',
                        self.choose_color_event)
 
@@ -116,7 +120,21 @@ class DrawingApp:
                              command=self.update_size)
         size_button.pack(side=LEFT)
 
+        text_button = Button(control_frame,
+                             text="Текст",
+                             command=self.create_text)
+        text_button.pack(side=LEFT)
+
+        cc_canvas = self.change_canvas_color
+        change_canvas_color_button = Button(control_frame,
+                                            text="Цвет фона",
+                                            command=cc_canvas)
+        change_canvas_color_button.pack(side=LEFT)
+
     def update_size(self):
+        """
+        Обновление размера изображения.
+        """
         max_size = self.__max_canvas_size_width
         size = simpledialog.askinteger("Размер изображения",
                                        "Новый размер картинки:",
@@ -134,6 +152,53 @@ class DrawingApp:
         self.canvas.config(width=self.canvas_size_width,
                            height=self.canvas_size_height)
         self.canvas.pack()
+
+    def create_text(self):
+        """
+        Получение текста из диалога.
+        """
+        self.__last_place_text = simpledialog.askstring("Текст",
+                                                        "Введите текст:",
+                                                        parent=self.root)
+        self.canvas.unbind('<B1-Motion>')
+        self.canvas.unbind('<ButtonRelease-1>')
+        self.canvas.bind('<Button-1>',
+                         self.place_text)
+
+    def place_text(self,
+                   event):
+        """
+        Расположение текста на изображении.
+        """
+        self.draw.text((event.x, event.y),
+                       text=self.__last_place_text,
+                       fill=self.pen_color,
+                       font=self.__font,
+                       background=self.__canvas_color)
+
+        self.photo = ImageTk.PhotoImage(self.image)
+        image_id = self.canvas.create_image(0,
+                                            0,
+                                            anchor="nw",
+                                            image=self.photo)
+
+        self.canvas.itemconfig(image_id,
+                               image=self.photo)
+        self.canvas.update()
+
+        self.canvas.unbind('<Button-1>')
+        self.canvas.bind('<B1-Motion>',
+                         self.paint)
+        self.canvas.bind('<ButtonRelease-1>',
+                         self.reset)
+
+    def change_canvas_color(self):
+        """
+        Изменение цвета фона.
+        """
+        self.__canvas_color = colorchooser.askcolor(
+            color=self.__canvas_color)[1]
+        self.set_current_canvas_color()
 
     def paint(self,
               event):
@@ -196,9 +261,7 @@ class DrawingApp:
         """
         Выбор цвета.
         """
-        self.pen_color = self.__previous_pen_color
-        self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
-        self.set_current_color()
+        self.choose_color()
 
     def set_current_color(self):
         """
@@ -208,6 +271,14 @@ class DrawingApp:
                 and self.pen_color != self.__canvas_color):
             self.canvas_current_color.configure(bg=self.pen_color)
 
+    def set_current_canvas_color(self):
+        """
+        Установка текущего цвета фона.
+        """
+        if self.__canvas_color is not None:
+            self.canvas.config(bg=self.__canvas_color)
+            self.canvas.update()
+
     def eraser(self):
         """
         Ластик.
@@ -215,8 +286,7 @@ class DrawingApp:
         self.__previous_pen_color = self.pen_color
         self.pen_color = self.__canvas_color
 
-    def save_image(self,
-                   event):
+    def save_image(self):
         """
         Сохранение изображения.
         """
@@ -229,6 +299,13 @@ class DrawingApp:
             self.image.save(file_path)
             messagebox.showinfo("Информация",
                                 "Изображение успешно сохранено!")
+
+    def save_image_event(self,
+                         event):
+        """
+        Сохранение изображения.
+        """
+        self.save_image()
 
 
 def main():
